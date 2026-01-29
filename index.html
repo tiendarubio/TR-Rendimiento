@@ -1,67 +1,198 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TR Rendimiento</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
-<link href="assets/css/styles.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TRLista — Rendimiento por dependientx</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+  <link href="assets/css/styles.css" rel="stylesheet">
 </head>
 <body>
-<div class="container py-3">
-<h1 class="h4">Rendimiento por dependientx</h1>
-<small id="lastSaved">Aún no guardado</small>
+  <div class="container py-3">
+    <img src="assets/img/trlogo.png" alt="Logo" class="logo mb-2">
 
-<div class="row g-2 mt-3">
-  <div class="col-md-4">
-    <label>Fecha</label>
-    <input id="fechaInput" class="form-control">
+    <!-- Título y encabezado -->
+    <div class="header-wrap mb-3 text-center">
+      <h1 class="h4 mb-1">Rendimiento por dependientx</h1>
+      <p class="text-muted mb-1">
+        Panel para rankear y visualizar el aporte de cada dependientx a las metas por sucursal y meta personal.
+      </p>
+      <small id="lastSaved" class="text-muted">Aún no guardado.</small>
+    </div>
+
+    <!-- Resumen superior -->
+    <div class="row g-3 mb-3">
+      <div class="col-12 col-md-4">
+        <div class="summary-card h-100">
+          <div class="summary-label">Venta diaria (todas las sucursales)</div>
+          <div id="resumenVentaDia" class="summary-value">$0.00</div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="summary-card h-100">
+          <div class="summary-label">Venta acumulada total</div>
+          <div id="resumenVentaTotal" class="summary-value">$0.00</div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="summary-card h-100">
+          <div class="summary-label">Dependientxs con ventas registradas</div>
+          <div id="resumenNumeroDependientes" class="summary-value">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel de control -->
+    <div class="section-container mb-3">
+      <h2 class="section-title">Panel de control</h2>
+      <div class="row g-3">
+        <!-- Filtros -->
+        <div class="col-12 col-lg-6">
+          <div class="subcard p-2">
+            <div class="row g-3 align-items-start">
+              <div class="col-12 col-md-6">
+                <label for="fechaInput" class="form-label fw-semibold mb-0">Fecha corte (venta diaria)</label>
+                <input type="text" id="fechaInput" class="form-control" placeholder="Selecciona una fecha">
+                <div id="diasConRegistros" class="mt-1 small text-muted">
+                  Los días con un punto azul tienen ventas registradas.
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <label for="sucursalFiltro" class="form-label fw-semibold mb-0">Sucursal (para tablas)</label>
+                <select id="sucursalFiltro" class="form-select">
+                  <option value="TODAS">Todas</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="col-12 col-lg-6">
+          <div class="subcard p-2">
+            <label class="form-label fw-semibold mb-1">Acciones rápidas</label>
+            <div class="d-flex flex-wrap gap-2">
+              <button id="btnHoy" class="btn btn-outline-secondary flex-fill">
+                <i class="fa-regular fa-calendar"></i> Hoy
+              </button>
+              <button id="btnCorteMes" class="btn btn-outline-secondary flex-fill">
+                <i class="fa-regular fa-calendar-check"></i> Corte fin de mes
+              </button>
+              <button id="btnEstadoCuenta" class="btn btn-outline-primary flex-fill">
+                <i class="fa-solid fa-file-pdf"></i> Estado de cuenta
+              </button>
+              <button id="btnLimpiarRegistros" class="btn btn-outline-danger flex-fill">
+                <i class="fa-solid fa-trash"></i> Limpiar todo
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Registro de venta diaria -->
+      <div class="mt-3 subcard p-2">
+        <h3 class="h6 mb-2">Registrar venta diaria</h3>
+        <div class="row g-3 align-items-start">
+          <div class="col-12 col-lg-4">
+            <label for="dependienteSelect" class="form-label mb-0">Dependientx</label>
+            <select id="dependienteSelect" class="form-select"></select>
+          </div>
+          <div class="col-12 col-lg-4">
+            <label for="sucursalSelect" class="form-label mb-0">Sucursal</label>
+            <select id="sucursalSelect" class="form-select"></select>
+          </div>
+          <div class="col-8 col-lg-3">
+            <label for="montoInput" class="form-label mb-0">Monto del día (USD)</label>
+            <input id="montoInput" type="number" step="0.01" min="0" class="form-control" placeholder="0.00">
+          </div>
+          <div class="col-4 col-lg-1 d-grid">
+            <button id="btnAgregarRegistro" class="btn btn-primary">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Registros del día seleccionado -->
+    <div class="section-container mb-3">
+      <h2 class="section-title">Registros del día seleccionado</h2>
+      <div class="table-responsive">
+        <table class="table table-sm table-striped table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Fecha</th>
+              <th>Dependientx</th>
+              <th>Sucursal</th>
+              <th class="text-end">Monto</th>
+              <th class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyRegistros"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Avance de meta por sucursal (acumulado) -->
+    <div class="section-container mb-3">
+      <h2 class="section-title">Avance de meta por sucursal (acumulado)</h2>
+      <p class="small text-muted mb-2">
+        Muestra el avance total de cada sucursal contra su meta, considerando todas las ventas registradas.
+      </p>
+      <div id="storeSummary" class="row g-3"></div>
+    </div>
+
+    <!-- Rendimiento por dependientx (acumulado, ranking) -->
+    <div class="section-container mb-3">
+      <h2 class="section-title">Rendimiento por dependientx (acumulado)</h2>
+      <p class="small text-muted mb-2">
+        1 fila por dependientx: aporte a cada sucursal y avance de meta personal (suma de todas las sucursales).
+      </p>
+      <div class="table-responsive">
+        <table class="table table-sm table-striped table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th style="width:60px;">#</th>
+              <th>Dependientx</th>
+              <th>Avenida Morazán</th>
+              <th>Sexta Calle</th>
+              <th>Centro Comercial</th>
+              <th class="text-end">Total global</th>
+              <th style="min-width: 220px;">Meta personal (global)</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyResumenDependientes"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
-  <div class="col-md-4">
-    <label>Dependientx</label>
-    <select id="dependienteSelect" class="form-select"></select>
-  </div>
-  <div class="col-md-4">
-    <label>Sucursal</label>
-    <select id="sucursalSelect" class="form-select"></select>
-  </div>
-</div>
 
-<div class="row g-2 mt-2">
-  <div class="col-md-4">
-    <label>Monto</label>
-    <input id="montoInput" type="number" step="0.01" class="form-control">
-  </div>
-  <div class="col-md-2 d-grid">
-    <label>&nbsp;</label>
-    <button id="btnAdd" class="btn btn-primary">Agregar</button>
-  </div>
-</div>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<table class="table table-sm mt-4">
-<thead><tr><th>Fecha</th><th>Dependientx</th><th>Sucursal</th><th>Monto</th></tr></thead>
-<tbody id="tbody"></tbody>
-</table>
-</div>
+  <!-- Firebase (Firestore) -->
+  <script src="https://www.gstatic.com/firebasejs/12.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore-compat.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    // Firebase via env vars (Vercel) -> /api/firebase-config
+    (async () => {
+      try {
+        const res = await fetch('/api/firebase-config');
+        const cfg = await res.json();
+        if (!firebase.apps.length) firebase.initializeApp(cfg);
+      } catch (e) {
+        console.error('No se pudo inicializar Firebase:', e);
+        alert('Error: no se pudo inicializar Firebase. Revisa variables de entorno en Vercel.');
+      }
+    })();
+  </script>
 
-<script src="https://www.gstatic.com/firebasejs/12.6.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore-compat.js"></script>
-
-<script>
-(async () => {
-  const res = await fetch('/api/firebase-config');
-  const firebaseConfig = await res.json();
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
-})();
-</script>
-
-<script src="assets/js/app.js"></script>
-<script src="assets/js/rendimiento.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/rendimiento_dependientx.js"></script>
 </body>
 </html>
